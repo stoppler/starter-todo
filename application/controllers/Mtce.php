@@ -14,7 +14,6 @@ class Mtce extends Application
 {
 	private $items_per_page = 10;
 	public function index()
-
 	{
 		$this->page(1);
 	}
