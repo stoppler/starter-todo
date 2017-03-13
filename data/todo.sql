@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.6.3
--- https://www.phpmyadmin.net/
+-- version 4.5.2
+-- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Feb 14, 2017 at 08:40 AM
--- Server version: 5.7.13
--- PHP Version: 7.0.8
+-- Generation Time: Mar 08, 2017 at 07:24 PM
+-- Server version: 10.1.19-MariaDB
+-- PHP Version: 7.0.13
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -23,10 +23,30 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `ci_sessions`
+--
+
+CREATE TABLE `ci_sessions` (
+  `id` varchar(128) NOT NULL,
+  `ip_address` varchar(45) NOT NULL,
+  `timestamp` int(10) UNSIGNED NOT NULL DEFAULT '0',
+  `data` blob NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `ci_sessions`
+--
+
+INSERT INTO `ci_sessions` (`id`, `ip_address`, `timestamp`, `data`) VALUES
+('lfnrlgoucrt5aohb471t7b8scbli3s3c', '::1', 1488996689, 0x5f5f63695f6c6173745f726567656e65726174657c693a313438383939363635363b),
+('t2ov1bcsbbnhqgbl7i88jjjh04o06mr1', '127.0.0.1', 1488997341, 0x5f5f63695f6c6173745f726567656e65726174657c693a313438383939373139333b);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `flags`
 --
 
-DROP TABLE IF EXISTS `flags`;
 CREATE TABLE `flags` (
   `id` int(1) NOT NULL,
   `meaning` varchar(6) DEFAULT NULL
@@ -45,7 +65,6 @@ INSERT INTO `flags` (`id`, `meaning`) VALUES
 -- Table structure for table `groups`
 --
 
-DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
   `id` int(1) NOT NULL,
   `name` varchar(6) DEFAULT NULL
@@ -67,7 +86,6 @@ INSERT INTO `groups` (`id`, `name`) VALUES
 -- Table structure for table `priorities`
 --
 
-DROP TABLE IF EXISTS `priorities`;
 CREATE TABLE `priorities` (
   `id` int(1) NOT NULL,
   `name` varchar(6) DEFAULT NULL
@@ -88,7 +106,6 @@ INSERT INTO `priorities` (`id`, `name`) VALUES
 -- Table structure for table `sizes`
 --
 
-DROP TABLE IF EXISTS `sizes`;
 CREATE TABLE `sizes` (
   `id` int(1) NOT NULL,
   `name` varchar(6) DEFAULT NULL
@@ -109,7 +126,6 @@ INSERT INTO `sizes` (`id`, `name`) VALUES
 -- Table structure for table `statuses`
 --
 
-DROP TABLE IF EXISTS `statuses`;
 CREATE TABLE `statuses` (
   `id` int(1) NOT NULL,
   `name` varchar(11) DEFAULT NULL
@@ -129,7 +145,6 @@ INSERT INTO `statuses` (`id`, `name`) VALUES
 -- Table structure for table `tasks`
 --
 
-DROP TABLE IF EXISTS `tasks`;
 CREATE TABLE `tasks` (
   `id` int(2) NOT NULL,
   `task` varchar(22) DEFAULT NULL,
@@ -165,6 +180,13 @@ INSERT INTO `tasks` (`id`, `task`, `priority`, `size`, `group`, `deadline`, `sta
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `ci_sessions`
+--
+ALTER TABLE `ci_sessions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `ci_sessions_timestamp` (`timestamp`);
 
 --
 -- Indexes for table `flags`
