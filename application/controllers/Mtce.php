@@ -31,7 +31,12 @@ class Mtce extends Application
 			}
 			$result.= $this->parser->parse('oneitem', (array)$task, true);
 		}
-		$this->data['display_tasks'] = $result;
+                if ($role == ROLE_OWNER) {
+            $result .= $this->parser->parse('oneitemx', (array) $task, true);
+        } else {
+            $result .= $this->parser->parse('oneitem', (array) $task, true);
+        }
+        $this->data['display_tasks'] = $result;
 		// and then pass them on
 		$this->data['pagebody'] = 'itemlist';
 		$this->render();
@@ -55,7 +60,11 @@ class Mtce extends Application
 			}
 		}
 		$this->data['pagination'] = $this->pagenav($num);
-		$this->show_page($tasks);
+                $role = $this->session->userdata('userrole');
+                if ($role == ROLE_OWNER) {
+            $this->data['pagination'] .= $this->parser->parse('itemadd', [], true);
+        }
+        $this->show_page($tasks);
 	}
 	// Build the pagination navbar
 	private function pagenav($num)
@@ -69,4 +78,79 @@ class Mtce extends Application
 		);
 		return $this->parser->parse('itemnav', $parms, true);
 	}
+        // Initiate adding a new task
+public function add()
+{
+    $task = $this->tasks->create();
+    $this->session->set_userdata('task', $task);
+    $this->showit();
+}
+// initiate editing of a task
+public function edit($id = null)
+{
+    if ($id == null) {
+            redirect('/mtce');
+        }
+        $task = $this->tasks->get($id);
+    $this->session->set_userdata('task', $task);
+    $this->showit();
+}
+// Render the current DTO
+private function showit()
+{
+    $task = $this->session->userdata('task');
+    $this->data['id'] = $task->id;
+    foreach ($this->priorities->all() as $record)
+    {
+        $priparms[$record->id] = $record->name;
+    }
+    $fields = array(
+        'ftask' => makeTextField('Task description', 'task', $task->task, 'Work', "What needs to be done?"),
+        'fpriority' => makeComboBox('Priority', 'priority', $task->priority, $priparms, "How important is this task?"),
+        'zsubmit' => makeSubmitButton('Update the TODO task', "Click on home or <back> if you don't want to change anything!", 'btn-success'),
+    );
+    $this->data = array_merge($this->data, $fields);
+
+    $this->data['pagebody'] = 'itemedit';
+    $this->render();
+}
+// handle form submission
+public function submit()
+{
+    $this->load->library('form_validation');
+    $this->form_validation->set_rules($this->tasks->rules());
+    // retrieve & update data transfer buffer
+    $task = (array) $this->session->userdata('task');
+    $task = array_merge($task, $this->input->post());
+    $task = (object) $task;  // convert back to object
+    $this->session->set_userdata('task', (object) $task);
+    if ($this->form_validation->run())
+    {
+        if (empty($task->id))
+        {
+            $this->tasks->add($task);
+            $this->alert('Task ' . $task->id . ' added', 'success');
+        } else
+            $this->tasks->update($task);
+            $this->alert('Task ' . $task->id . ' updated', 'success');
+    } else
+    {
+        $this->alert('<strong>Validation errors!<strong><br>' . validation_errors(), 'danger');
+    }
+    $this->showit();
+}
+// Forget about this edit
+function cancel() {
+    $this->session->unset_userdata('task');
+    redirect('/mtce');
+}
+// Delete this item altogether
+function delete()
+{
+    $dto = $this->session->userdata('task');
+    $task = $this->tasks->get($dto->id);
+    $this->tasks->delete($task->id);
+    $this->session->unset_userdata('task');
+    redirect('/mtce');
+}
 }
